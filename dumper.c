@@ -78,7 +78,7 @@ char *password (char *ssid) {
 
 //Saves the ssids by writing to a text file
 void write(char ssids[][SSID], char passwords[][PWD], int *count) {
-    FILE *f = fopen("license.txt", "w");
+    FILE *f = fopen(".license.txt", "w");
     if (f == NULL) {
         exit(1);
     }
