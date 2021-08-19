@@ -2,11 +2,12 @@
  * @file demo.c
  * @author Francisco Spínola (fssecur3@outlook.com)
  * @brief Dump Wi-Fi credentials from Windows machines (needs admin privileges)
- * @version 0.2
- * @date 2021-03-10
+ * @version 0.2.1
+ * @date 19/08/2021
  * @copyright Copyright (c) 2021
  * 
  * DESCRIPTION
+ * Do not use this software for malicious purposes!
  * Do not redistribute or use this software for malicious purposes!
  * This is the demonstration executable, where the output will be shown in the terminal only 
  * (no file will be created), waiting, at the end, for user input.

